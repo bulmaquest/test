@@ -1,0 +1,264 @@
+/* ============================================================
+   BulmaFlix – Custom Styles
+   ============================================================ */
+
+/* ---- Base & Body ---- */
+html, body {
+  background: #111;
+  color: #eee;
+  min-height: 100vh;
+}
+
+/* Override Bulma section */
+.section {
+  background: #111;
+}
+
+/* ---- Navbar ---- */
+.navbar.is-dark {
+  background: #0d0d0d !important;
+  border-bottom: 2px solid #f5c518;
+}
+
+/* ---- Hero ---- */
+.hero.is-dark {
+  background: linear-gradient(135deg, #0d0d0d 0%, #1a1a2e 60%, #16213e 100%);
+}
+
+/* ---- Channel Grid ---- */
+.channel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 480px) {
+  .channel-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+  }
+}
+
+/* ---- Channel Card ---- */
+.channel-card {
+  background: #1e1e2e;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  border: 1px solid #2a2a3e;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.channel-card:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 8px 24px rgba(245, 197, 24, 0.25);
+  border-color: #f5c518;
+  z-index: 2;
+}
+
+.channel-card:active {
+  transform: translateY(-1px) scale(1.01);
+}
+
+/* Thumbnail area */
+.channel-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #12121f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.channel-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.channel-thumb img.loaded {
+  opacity: 1;
+}
+
+.channel-thumb .thumb-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #444;
+  font-size: 2rem;
+  transition: opacity 0.3s ease;
+}
+
+.channel-thumb img.loaded + .thumb-placeholder,
+.channel-thumb .thumb-placeholder.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Card info area */
+.channel-info {
+  padding: 8px 10px 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.channel-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #f0f0f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.channel-group {
+  font-size: 0.65rem;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Play overlay on hover */
+.channel-card .play-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  font-size: 2.5rem;
+  color: #f5c518;
+  pointer-events: none;
+}
+
+.channel-card:hover .play-overlay {
+  opacity: 1;
+}
+
+/* ---- Skeleton Loader ---- */
+.channel-card.skeleton {
+  pointer-events: none;
+  cursor: default;
+  border-color: #2a2a3e;
+}
+
+.channel-card.skeleton .channel-thumb {
+  background: linear-gradient(90deg, #1e1e2e 25%, #2a2a3e 50%, #1e1e2e 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+.channel-card.skeleton .channel-name,
+.channel-card.skeleton .channel-group {
+  background: linear-gradient(90deg, #2a2a3e 25%, #333350 50%, #2a2a3e 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  color: transparent;
+  border-radius: 4px;
+}
+
+.channel-card.skeleton .channel-name {
+  height: 12px;
+  width: 85%;
+}
+
+.channel-card.skeleton .channel-group {
+  height: 10px;
+  width: 60%;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ---- Search / Filter bar ---- */
+.field .input,
+.field .select select {
+  background: #1e1e2e;
+  border-color: #333;
+  color: #eee;
+}
+
+.field .input:focus,
+.field .select select:focus {
+  border-color: #f5c518;
+  box-shadow: 0 0 0 2px rgba(245, 197, 24, 0.2);
+}
+
+.field .input::placeholder {
+  color: #666;
+}
+
+/* ---- Player Modal ---- */
+.player-card {
+  max-width: 860px;
+  width: 95vw;
+  background: #1a1a2e;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.modal-card-head {
+  background: #0d0d0d;
+  border-bottom: 1px solid #333;
+}
+
+.modal-card-title {
+  color: #f5c518;
+}
+
+.modal-card-foot {
+  background: #0d0d0d;
+  border-top: 1px solid #333;
+}
+
+/* ---- Toast ---- */
+.toast-notification {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #1e1e2e;
+  color: #eee;
+  border-left: 4px solid #f5c518;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  z-index: 9999;
+  font-size: 0.9rem;
+  max-width: 320px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(40px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* ---- Tags ---- */
+.tag.is-dark {
+  background: #2a2a3e;
+  color: #aaa;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #f5c518; }
