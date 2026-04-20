@@ -96,9 +96,14 @@ function startPolling() {
 }
 
 function updateProgressText(status) {
+  if (status.startsWith("error")) {
+    $("statusText").textContent = "Erro: " + status.replace("error:", "");
+    return;
+  }
   const map = {
     loading: "Baixando e processando a lista M3U…",
     ready:   "Lista pronta!",
+    unknown: "Aguardando…",
   };
   $("statusText").textContent = map[status] || status;
 }

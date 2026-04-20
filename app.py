@@ -28,12 +28,12 @@ def _ensure_deps():
 
 _ensure_deps()
 
+import ipaddress
 import re
-import io
+import socket
 import threading
-import time
 import logging
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse
 
 import requests
 from cachetools import TTLCache
@@ -277,6 +277,29 @@ def api_groups():
     return jsonify({"groups": groups})
 
 
+def _is_safe_image_url(url: str) -> bool:
+    """
+    Return True only if the URL points to a public host.
+    Blocks private/loopback/link-local IP ranges to prevent SSRF.
+    """
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        return False
+    hostname = parsed.hostname or ""
+    if not hostname:
+        return False
+    try:
+        # Resolve hostname to IP and verify it is not internal
+        addr = socket.getaddrinfo(hostname, None, proto=socket.IPPROTO_TCP)
+        for _family, _type, _proto, _canonname, sockaddr in addr:
+            ip = ipaddress.ip_address(sockaddr[0])
+            if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved:
+                return False
+    except (socket.gaierror, ValueError):
+        return False
+    return True
+
+
 @app.route("/api/imgproxy")
 def api_imgproxy():
     """
@@ -287,9 +310,7 @@ def api_imgproxy():
     if not img_url:
         return "", 400
 
-    # Basic URL validation
-    parsed = urlparse(img_url)
-    if parsed.scheme not in ("http", "https"):
+    if not _is_safe_image_url(img_url):
         return "", 400
 
     try:
