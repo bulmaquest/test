@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BulmaFlix</title>
+
+  <!-- Bulma CSS (CDN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css" />
+  <!-- Font Awesome icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="/">
+      <img src="/static/bulmaflix.png" alt="BulmaFlix" style="max-height:38px;" />
+    </a>
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false"
+       data-target="navMenu">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navMenu" class="navbar-menu">
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <span class="tag is-info" id="channelCount" style="display:none;">
+          <span id="channelCountNum">0</span> canais
+        </span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO / LOAD SECTION ===== -->
+<section class="hero is-dark is-small" id="heroSection">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">
+        <span class="has-text-warning">&#9654;</span> BulmaFlix
+      </h1>
+      <h2 class="subtitle">Seu player IPTV moderno e rápido</h2>
+
+      <!-- M3U URL input -->
+      <div class="field has-addons has-addons-centered" style="max-width:700px;">
+        <div class="control is-expanded">
+          <input id="m3uUrl" class="input is-medium" type="url"
+                 placeholder="Cole aqui a URL da sua lista M3U…" />
+        </div>
+        <div class="control">
+          <button id="btnLoad" class="button is-warning is-medium" onclick="loadList()">
+            <span class="icon"><i class="fas fa-download"></i></span>
+            <span>Carregar</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Status bar -->
+      <div id="statusBar" class="mt-3" style="display:none;">
+        <progress id="loadProgress" class="progress is-warning is-small" max="100">15%</progress>
+        <p id="statusText" class="has-text-grey-light is-size-7 mt-1">Carregando lista…</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MAIN CONTENT ===== -->
+<section class="section pt-3 pb-3" id="mainContent" style="display:none;">
+  <div class="container is-fluid">
+
+    <!-- Toolbar: search + filters -->
+    <div class="columns is-vcentered mb-3">
+      <div class="column is-narrow">
+        <div class="field">
+          <div class="control has-icons-left">
+            <input id="searchInput" class="input" type="text" placeholder="Buscar canal…"
+                   oninput="debouncedSearch()" />
+            <span class="icon is-left"><i class="fas fa-search"></i></span>
+          </div>
+        </div>
+      </div>
+      <div class="column is-narrow">
+        <div class="field">
+          <div class="control has-icons-left">
+            <div class="select">
+              <select id="groupSelect" onchange="filterByGroup()">
+                <option value="">Todas as categorias</option>
+              </select>
+            </div>
+            <span class="icon is-left"><i class="fas fa-layer-group"></i></span>
+          </div>
+        </div>
+      </div>
+      <div class="column">
+        <span class="tag is-dark is-medium" id="resultCount"></span>
+      </div>
+    </div>
+
+    <!-- Channel grid -->
+    <div id="channelGrid" class="channel-grid"></div>
+
+    <!-- Sentinel for infinite scroll -->
+    <div id="sentinel" style="height:1px;"></div>
+
+    <!-- Loading more indicator -->
+    <div id="loadingMore" class="has-text-centered py-4" style="display:none;">
+      <span class="icon has-text-warning is-large">
+        <i class="fas fa-spinner fa-spin fa-2x"></i>
+      </span>
+    </div>
+
+    <!-- End of results -->
+    <div id="endOfResults" class="has-text-centered py-4 has-text-grey" style="display:none;">
+      <i class="fas fa-check-circle"></i> Todos os canais carregados
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== VIDEO PLAYER MODAL ===== -->
+<div id="playerModal" class="modal">
+  <div class="modal-background" onclick="closePlayer()"></div>
+  <div class="modal-card player-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title" id="playerTitle">Canal</p>
+      <button class="delete" aria-label="close" onclick="closePlayer()"></button>
+    </header>
+    <section class="modal-card-body p-0">
+      <div id="playerContainer">
+        <video id="videoPlayer" controls autoplay playsinline
+               style="width:100%;background:#000;display:block;"></video>
+      </div>
+      <div class="p-4">
+        <div class="tags" id="playerMeta"></div>
+      </div>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-dark" onclick="copyStreamUrl()">
+        <span class="icon"><i class="fas fa-copy"></i></span>
+        <span>Copiar URL</span>
+      </button>
+      <button class="button" onclick="closePlayer()">Fechar</button>
+    </footer>
+  </div>
+</div>
+
+<!-- ===== TOAST NOTIFICATION ===== -->
+<div id="toast" class="toast-notification" style="display:none;"></div>
+
+<!-- HLS.js (CDN) for HLS stream support -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
