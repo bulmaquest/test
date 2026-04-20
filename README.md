@@ -1,72 +1,71 @@
 # BulmaFlix 🎬
 
-Player IPTV web moderno com carregamento sob demanda, interface responsiva e suporte a listas M3U.
-
-## Recursos
-
-- ⚡ **Carregamento sob demanda** — infinite scroll com IntersectionObserver; nunca trava com listas grandes
-- 🚀 **Download assíncrono** — a lista M3U é baixada em background sem bloquear a interface
-- 🖼️ **Lazy loading de capas** — thumbnails carregam apenas quando ficam visíveis
-- 📺 **Player HLS nativo** — suporte a streams HLS/m3u8 via hls.js e fallback HTML5
-- 🔍 **Busca e filtro por categoria** — pesquisa em tempo real com debounce
-- 🚫 **Filtro de canais 24h** — canais de loop 24 horas são removidos automaticamente
-- 🎨 **Interface moderna** — tema escuro com Bulma CSS, animações e skeleton loaders
-- 📦 **Auto-instalação de dependências** — as dependências Python são instaladas automaticamente
-
-## Requisitos
-
-- Python 3.10+
-
-## Como Executar
-
-```bash
-# 1. Clone o repositório (se necessário)
-git clone <repo-url>
-cd test
-
-# 2. Execute diretamente — dependências são instaladas automaticamente
-python app.py
-```
-
-Acesse **http://localhost:5000** no navegador.
+Player IPTV desktop para Windows com interface moderna e carregamento sob demanda.
 
 ## Como Usar
 
-1. Cole a URL da sua lista M3U no campo de texto
-2. Clique em **Carregar** (ou pressione Enter)
-3. Aguarde o processamento (indicador de progresso)
-4. Navegue pelos canais, use a busca ou filtre por categoria
-5. Clique em um canal para abrir o player
+### Execução direta (Python)
+
+```bat
+python main.py
+```
+As dependências são instaladas automaticamente na primeira execução.
+
+### Gerar o executável (.exe)
+
+Execute o script de build no Windows:
+
+```bat
+build.bat
+```
+
+O `.exe` será gerado em `dist\BulmaFlix.exe`. Basta copiar para qualquer pasta e executar — sem precisar instalar Python.
+
+## Recursos
+
+- ⚡ **Carregamento sob demanda** — canais são exibidos em lotes de 40; rola para carregar mais
+- 🚀 **Download assíncrono** — a lista M3U é baixada em background sem travar a janela
+- 🖼️ **Lazy loading de capas** — thumbnails carregam progressivamente em background
+- 📺 **Reprodução via VLC / MPV** — detecta o player instalado automaticamente
+- 🔍 **Busca e filtro por categoria** — pesquisa em tempo real
+- 🚫 **Filtro de canais 24h** — canais de loop/24 horas são removidos automaticamente
+- 🎨 **Interface moderna** — tema escuro com `customtkinter`, grid responsivo, hover effects
+- 📦 **Auto-instalação de dependências** — roda apenas com Python instalado
+
+## Reprodução de Streams
+
+O BulmaFlix tenta abrir o canal nas seguintes ordens:
+1. **VLC Player** (detecta automaticamente em `Program Files`)
+2. **MPV** (se estiver no PATH)
+3. **Navegador padrão** (fallback)
+4. Se nenhum for encontrado, mostra um diálogo para copiar a URL manualmente
+
+> 💡 Recomendado: instale o [VLC Player](https://www.videolan.org/vlc/) para melhor compatibilidade com streams IPTV.
+
+## Requisitos
+
+- Python 3.10+ (para executar via `python main.py`)
+- Para o `.exe`: apenas Windows (sem Python necessário)
+
+## Dependências Python
+
+| Pacote          | Uso                                   |
+|-----------------|---------------------------------------|
+| customtkinter   | Interface gráfica moderna dark-theme  |
+| Pillow          | Carregamento e redimensionamento de imagens |
+| requests        | Download da lista M3U e thumbnails    |
+| pyinstaller     | Geração do executável `.exe` (build)  |
 
 ## Estrutura do Projeto
 
 ```
 test/
-├── app.py                   # Backend Flask (servidor, parsing M3U, proxy de imagens)
+├── main.py                  # App desktop (entry point principal)
+├── build.bat                # Script para gerar o .exe no Windows
 ├── requirements.txt         # Dependências Python
-├── templates/
-│   └── index.html           # Interface principal (Bulma CSS)
 ├── static/
-│   ├── css/style.css        # Estilos customizados (tema escuro)
-│   ├── js/app.js            # Lógica frontend (lazy loading, player, busca)
 │   └── bulmaflix.png        # Logo
+├── app.py                   # (legado) versão web Flask — não necessária
 └── README.md
 ```
 
-## Dependências Python
-
-| Pacote      | Uso                                  |
-|-------------|--------------------------------------|
-| flask       | Servidor web e rotas API             |
-| requests    | Download da lista M3U e proxy HTTP   |
-| cachetools  | Cache TTL das listas em memória      |
-
-## API Interna
-
-| Endpoint           | Método | Descrição                              |
-|--------------------|--------|----------------------------------------|
-| `/api/load`        | POST   | Inicia o download assíncrono da lista  |
-| `/api/status`      | GET    | Consulta o estado do carregamento      |
-| `/api/channels`    | GET    | Retorna canais paginados               |
-| `/api/groups`      | GET    | Lista categorias disponíveis           |
-| `/api/imgproxy`    | GET    | Proxy de thumbnails (evita CORS)       |
